@@ -1,0 +1,16 @@
+sbt celan compile
+clean 
+compile
+clean
+compile
+clean
+compile
+assembly
+clean
+compile
+clean
+compile
+assembly
+sbt clean compile assembly
+clean compile assembly
+exit

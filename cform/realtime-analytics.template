@@ -1,0 +1,1397 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "(SO0016) - RealTime-Analytics with Spark Streaming.",
+  "Mappings": {
+    "AWSInstanceType2Arch": {
+      "c1.medium": {
+        "Arch": "PV64"
+      },
+      "c1.xlarge": {
+        "Arch": "PV64"
+      },
+      "c3.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "c3.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "c3.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "c3.large": {
+        "Arch": "HVM64"
+      },
+      "c3.xlarge": {
+        "Arch": "HVM64"
+      },
+      "cc2.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "cr1.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "g2.2xlarge": {
+        "Arch": "HVMG2"
+      },
+      "hi1.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "hs1.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.xlarge": {
+        "Arch": "HVM64"
+      },
+      "m1.large": {
+        "Arch": "PV64"
+      },
+      "m1.medium": {
+        "Arch": "PV64"
+      },
+      "m1.small": {
+        "Arch": "PV64"
+      },
+      "m1.xlarge": {
+        "Arch": "PV64"
+      },
+      "m2.2xlarge": {
+        "Arch": "PV64"
+      },
+      "m2.4xlarge": {
+        "Arch": "PV64"
+      },
+      "m2.xlarge": {
+        "Arch": "PV64"
+      },
+      "m3.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "m3.large": {
+        "Arch": "HVM64"
+      },
+      "m3.medium": {
+        "Arch": "HVM64"
+      },
+      "m3.xlarge": {
+        "Arch": "HVM64"
+      },
+      "m4.10xlarge": {
+        "Arch": "HVM64"
+      },
+      "m4.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "m4.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "m4.large": {
+        "Arch": "HVM64"
+      },
+      "m4.xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.large": {
+        "Arch": "HVM64"
+      },
+      "r3.xlarge": {
+        "Arch": "HVM64"
+      },
+      "t1.micro": {
+        "Arch": "PV64"
+      },
+      "t2.medium": {
+        "Arch": "HVM64"
+      },
+      "t2.micro": {
+        "Arch": "HVM64"
+      },
+      "t2.small": {
+        "Arch": "HVM64"
+      }
+    },
+    "AWSRegionArch2AMI": {
+      "ap-northeast-1": {
+        "HVM64": "ami-35072834",
+        "HVMG2": "ami-5dd1ff5c",
+        "PV64": "ami-21072820"
+      },
+      "ap-southeast-1": {
+        "HVM64": "ami-d6e1c584",
+        "HVMG2": "ami-fabe9aa8",
+        "PV64": "ami-20e1c572"
+      },
+      "ap-southeast-2": {
+        "HVM64": "ami-fd4724c7",
+        "HVMG2": "ami-e98ae9d3",
+        "PV64": "ami-8b4724b1"
+      },
+      "cn-north-1": {
+        "HVM64": "ami-ac57c595",
+        "HVMG2": "NOT_SUPPORTED",
+        "PV64": "ami-a857c591"
+      },
+      "eu-central-1": {
+        "HVM64": "ami-b43503a9",
+        "HVMG2": "ami-b03503ad",
+        "PV64": "ami-a03503bd"
+      },
+      "eu-west-1": {
+        "HVM64": "ami-748e2903",
+        "HVMG2": "ami-00913777",
+        "PV64": "ami-aa8f28dd"
+      },
+      "sa-east-1": {
+        "HVM64": "ami-956cc688",
+        "HVMG2": "NOT_SUPPORTED",
+        "PV64": "ami-9d6cc680"
+      },
+      "us-east-1": {
+        "HVM64": "ami-08842d60",
+        "HVMG2": "ami-3a329952",
+        "PV64": "ami-50842d38"
+      },
+      "us-west-1": {
+        "HVM64": "ami-cfa8a18a",
+        "HVMG2": "ami-331b1376",
+        "PV64": "ami-c7a8a182"
+      },
+      "us-west-2": {
+        "HVM64": "ami-8786c6b7",
+        "HVMG2": "ami-47296a77",
+        "PV64": "ami-af86c69f"
+      }
+    }
+  },
+  "Parameters": {
+    "ApplicationBucket": {
+      "Type": "String",
+      "Default": "",
+      "Description": "Kinesis Producer & Spark Artifact Bucket"
+    },
+    "KinesisStream": {
+      "Type": "String",
+      "Default": "myStream",
+      "Description": "Enter the Kinesis Stream name where the Producer Application events is to be published."
+    },
+    "ShardCount": {
+      "Type": "String",
+      "Default": "2",
+      "Description": "Enter the Kinesis Stream Shard count."
+    },
+    "SubmitMode": {
+      "Description": "Format of Spark Submit Mode (AppJar/Zeppelin)",
+      "Type": "String",
+      "Default": "DemoApp",
+      "AllowedValues": [
+        "Zeppelin",
+        "AppJar",
+        "DemoApp"
+      ]
+    },
+    "SubmitType": {
+      "Description": "Spark Submit type as a (Script/Command) for AppJar",
+      "Type": "String",
+      "Default": "None",
+      "AllowedValues": [
+        "None",
+        "Script",
+        "Command"
+      ]
+    },
+    "SubmitScript": {
+      "Type": "String",
+      "Default": "",
+      "Description": "{s3://{bucket_location/spark_submit.sh}"
+    },
+    "SubmitCommand": {
+      "Type": "CommaDelimitedList",
+      "Default": "",
+      "Description": "--deploy-mode,{cluster/client},--class {className},--master,{yarn/local[?]},{s3://AppLocation/AppJar},{Appname},{StreamName},{OutputLoc}"
+    },
+    "SampleSparkAppJar": {
+      "Type": "String",
+      "Default": "KinesisSparkStreamingV2.jar",
+      "Description": "Spark Application Jar"
+    },
+    "SampleSparkAppName": {
+      "Type": "String",
+      "Default": "app-spark-demo",
+      "Description": "Spark Application Name"
+    },
+    "EnvironmentName": {
+      "Description": "The name of the environment you are creating (e.g. dev, test, qa, prod, lab)",
+      "Type": "String",
+      "AllowedPattern": "^(?!\\-)(?:[a-zA-Z\\d\\-]{0,62}[a-zA-Z\\d])$",
+      "ConstraintDescription": "Must be an alphanumeric name (dashes are allowed, except as the first/last character)."
+    },
+    "AvailabilityZone1": {
+      "Type": "AWS::EC2::AvailabilityZone::Name",
+      "Description": "AZ 1 in which the VPC will be deployed."
+    },
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to EC2 instances",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "Must be the name of an existing EC2 KeyPair.",
+      "MinLength": "3",
+      "MaxLength": "41"
+    },
+    "BastionLocation": {
+      "Description": "The IP address range that can be used to SSH to the EC2 instances.",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    },
+    "VPCNetworkPrefix": {
+      "Description": "The network prefix (first 2 octets of an IP address) to be used for the VPCs internal network.",
+      "Type": "String",
+      "Default": "10.0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})"
+    },
+    "EMRMasterInstanceType": {
+      "AllowedValues": [
+        "t1.micro",
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "m1.small",
+        "m1.medium",
+        "m1.large",
+        "m1.xlarge",
+        "m2.xlarge",
+        "m2.2xlarge",
+        "m2.4xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlargec1.medium",
+        "c1.xlarge",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "g2.2xlarge",
+        "r3.large",
+        "r3.xlarge",
+        "r3.2xlarge",
+        "r3.4xlarge",
+        "r3.8xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge",
+        "hi1.4xlarge",
+        "hs1.8xlarge",
+        "cr1.8xlarge",
+        "cc2.8xlarge",
+        "cg1.4xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type.",
+      "Default": "m4.large",
+      "Description": "EC2 instance type",
+      "Type": "String"
+    },
+    "EMRCoreInstanceType": {
+      "AllowedValues": [
+        "t1.micro",
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "m1.small",
+        "m1.medium",
+        "m1.large",
+        "m1.xlarge",
+        "m2.xlarge",
+        "m2.2xlarge",
+        "m2.4xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlargec1.medium",
+        "c1.xlarge",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "g2.2xlarge",
+        "r3.large",
+        "r3.xlarge",
+        "r3.2xlarge",
+        "r3.4xlarge",
+        "r3.8xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge",
+        "hi1.4xlarge",
+        "hs1.8xlarge",
+        "cr1.8xlarge",
+        "cc2.8xlarge",
+        "cg1.4xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type.",
+      "Default": "r3.xlarge",
+      "Description": "EC2 instance type",
+      "Type": "String"
+    },
+    "SendAnonymousData": {
+      "Description": "Send anonymous data to AWS",
+      "Type": "String",
+      "Default": "Yes",
+      "AllowedValues": [
+        "Yes",
+        "No"
+      ]
+    },
+    "ProducerInstanceType": {
+      "AllowedValues": [
+        "t2.small",
+        "t2.medium",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type.",
+      "Default": "c3.xlarge",
+      "Description": "EC2 instance type",
+      "Type": "String"
+    },
+    "ProducerSourceCode": {
+      "Type": "String",
+      "Default": "KinesisProducer.jar",
+      "Description": "Enter the S3 object key for the Producer Application."
+    }
+  },
+  "Conditions": {
+    "AnonymousDatatoAWS": {
+      "Fn::Equals": [
+        {
+          "Ref": "SendAnonymousData"
+        },
+        "Yes"
+      ]
+    },
+    "DeploySampleApp": {
+      "Fn::Equals": [
+        {
+          "Ref": "SubmitMode"
+        },
+        "DemoApp"
+      ]
+    },
+    "AppMode": {
+      "Fn::Equals": [
+        {
+          "Ref": "SubmitMode"
+        },
+        "AppJar"
+      ]
+    },
+    "SubmitTypeScript": {
+      "Fn::And": [
+        {"Fn::Equals": ["Script", {"Ref": "SubmitType"}]},
+        {"Condition": "AppMode"}
+      ]
+    },
+    "SubmitTypeCommand": {
+      "Fn::And": [
+        {"Fn::Equals": ["Command", {"Ref": "SubmitType"}]},
+        {"Condition": "AppMode"}
+      ]
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [{
+        "Label": {
+          "default": "Environment"
+        },
+        "Parameters": ["EnvironmentName", "KeyName", "BastionLocation", "AvailabilityZone1", "VPCNetworkPrefix" ]
+      },{
+        "Label": {
+          "default": "Kinesis"
+        },
+        "Parameters": ["KinesisStream", "ShardCount"]
+      },{
+        "Label": {
+          "default": "EMR"
+        },
+        "Parameters": ["EMRMasterInstanceType", "EMRCoreInstanceType"]
+      },{
+        "Label": {
+          "default": "Artifact Buckets"
+        },
+        "Parameters": ["ApplicationBucket"]
+      },{
+        "Label": {
+          "default": "Application"
+        },
+        "Parameters": ["SubmitMode", "SubmitType", "SubmitScript", "SubmitCommand"]
+      },{
+        "Label": {
+          "default": "Sample Application"
+        },
+        "Parameters": ["SampleSparkAppJar", "SampleSparkAppName"]
+      },{
+        "Label": {
+          "default": "Producer"
+        },
+        "Parameters": ["ProducerInstanceType", "ProducerSourceCode"]
+      },{
+        "Label": {
+          "default": "AnonymousData"
+        },
+        "Parameters": ["SendAnonymousData"]
+      }]
+    }
+  },
+  "Resources": {
+    "AppBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Ref": "ApplicationBucket"
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "DeletionPolicy": "Retain"
+    },
+    "SparkOutputBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Condition" : "DeploySampleApp"
+    },
+    "SparkAppLogBucket": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "BucketName": {
+          "Fn::Join": [
+            "",
+            [
+              {
+                "Ref": "ApplicationBucket"
+              },
+              "-log"
+            ]
+          ]
+        },
+        "VersioningConfiguration": {
+          "Status": "Enabled"
+        }
+      },
+      "DeletionPolicy": "Retain"
+    },
+    "SparkDemoAppResource": {
+      "Type": "Custom::SparkDemoAppResource",
+      "Version": "1.0",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "SparkDemoAppLambdaFunction",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "SparkDemoAppLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Description": "This Lambda function executes only once to download sample demo app into Application S3 bucket",
+        "Code": {
+          "ZipFile": {
+            "Fn::Join": [
+              "",
+              [
+                "import json \n",
+                "import urllib2 \n",
+                "import os \n",
+                "import zipfile \n",
+                "import cfnresponse \n",
+                "import boto3 \n",
+                "from botocore.client import Config \n",
+                "print('Loading function') \n",
+                "def handler(event, context): \n",
+                "    if event['RequestType'] == 'Create' or event['RequestType'] == 'Update': \n",
+                "        Bucket='",
+                {
+                  "Ref": "AppBucket"
+                },
+                "' \n",
+                "        MyStackRegion='",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "' \n",
+                "        try: \n",
+                "            s3 = boto3.resource('s3', region_name=MyStackRegion, config=Config(signature_version='s3v4')) \n",
+                "            copy_source={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/KinesisSparkStreamingV2.jar'} \n",
+                "            copy_source1={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/_KinesisSparkStreaming.json'} \n",
+                "            copy_source2={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/KinesisProducer.jar'} \n",
+                "            copy_source3={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/zeppelin_config.sh'} \n",
+                "            copy_source4={'Bucket':'solutions-reference','Key':'spark_submit.sh'} \n",
+                "            s3.meta.client.copy(copy_source, Bucket, 'KinesisSparkStreamingV2.jar') \n",
+                "            s3.meta.client.copy(copy_source1, Bucket, '_KinesisSparkStreaming.json') \n",
+                "            s3.meta.client.copy(copy_source2, Bucket, 'KinesisProducer.jar') \n",
+                "            s3.meta.client.copy(copy_source3, Bucket, 'zeppelin_config.sh') \n",
+                "            s3.meta.client.copy(copy_source4, Bucket, 'spark_submit.sh') \n",
+                "        except Exception as e: \n",
+                "            print(e) \n",
+                "        responseData={'fileKey':'KinesisSparkStreamingV2.jar'} \n",
+                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData) \n",
+                "    elif event['RequestType'] == 'Delete': \n",
+                "        print(\"CustomResourceDelete\") \n",
+                "        responseData={} \n",
+                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData) \n",
+                "    else: \n",
+                "        responseData={} \n",
+                "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData) \n"
+              ]
+            ]
+          }
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AppLambdaExecutionRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "python2.7",
+        "Timeout": 300
+      }
+    },
+    "AppLambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "DemoAppLambda",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:PutObject*",
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "AppBucket"
+                          }
+                        ]
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "arn:aws:s3:::",
+                          {
+                            "Ref": "AppBucket"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::solutions-reference/realtime-analytics-spark-streaming/*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region"
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        ":log-group:/aws/lambda/*"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "VPCStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "Parameters": {
+          "EnvironmentName": {
+            "Ref": "EnvironmentName"
+          },
+          "AvailabilityZone1": {
+            "Ref": "AvailabilityZone1"
+          },
+          "KeyName": {
+            "Ref": "KeyName"
+          },
+          "VPCNetworkPrefix": {
+            "Ref": "VPCNetworkPrefix"
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/solutions-reference/realtime-analytics-spark-streaming/latest/vpc-with-private-public-subnets.template"
+      }
+    },
+    "ApplicationBucketPolicy" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : {"Ref" : "AppBucket"},
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Id": "Policy3445674452340",
+          "Statement": [
+            {
+              "Sid": "Stmt2445373452640",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "AppBucket"
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Condition": {
+                "StringEquals": {
+                  "aws:sourceVpce": {
+                    "Fn::GetAtt": [
+                      "VPCStack",
+                      "Outputs.VPCEndpoint"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "DependsOn" : "AppBucket"
+    },
+    "OutputBucketPolicy" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Condition" : "DeploySampleApp",
+      "Properties" : {
+        "Bucket" : {"Ref" : "SparkOutputBucket"},
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Id": "Policy3445674452340",
+          "Statement": [
+            {
+              "Sid": "Stmt2445373452640",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "SparkOutputBucket"
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Condition": {
+                "StringEquals": {
+                  "aws:sourceVpce": {
+                    "Fn::GetAtt": [
+                      "VPCStack",
+                      "Outputs.VPCEndpoint"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LogBucketPolicy" : {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : {"Ref" : "SparkAppLogBucket"},
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Id": "Policy3445674452340",
+          "Statement": [
+            {
+              "Sid": "Stmt2445373452640",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Action": "s3:*",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {
+                      "Ref": "SparkAppLogBucket"
+                    },
+                    "/*"
+                  ]
+                ]
+              },
+              "Condition": {
+                "StringEquals": {
+                  "aws:sourceVpce": {
+                    "Fn::GetAtt": [
+                      "VPCStack",
+                      "Outputs.VPCEndpoint"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "DependsOn" : "SparkAppLogBucket"
+    },
+    "KinesisStream1": {
+      "Type": "AWS::Kinesis::Stream",
+      "Properties": {
+        "Name": {
+          "Ref": "KinesisStream"
+        },
+        "ShardCount": {
+          "Ref": "ShardCount"
+        }
+      }
+    },
+    "EMRInstanceProfile": {
+      "Properties": {
+        "Path": "/",
+        "Roles": [
+          {
+            "Ref": "EMRJobFlowRole"
+          }
+        ]
+      },
+      "Type": "AWS::IAM::InstanceProfile"
+    },
+    "EMRJobFlowRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role"
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "EMRServiceRole": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "elasticmapreduce.amazonaws.com"
+                ]
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole"
+        ]
+      },
+      "Type": "AWS::IAM::Role"
+    },
+    "EMRCluster": {
+      "Properties": {
+        "Applications": [
+          {
+            "Name": "Hadoop"
+          },
+          {
+            "Name": "Hive"
+          },
+          {
+            "Name": "Spark"
+          },
+          {
+            "Name": "Zeppelin"
+          }
+        ],
+        "Instances": {
+          "AdditionalMasterSecurityGroups": [
+            {
+              "Fn::GetAtt": [
+                "VPCStack",
+                "Outputs.InternalTrafficSecurityGroupId"
+              ]
+            }
+          ],
+          "CoreInstanceGroup": {
+            "InstanceCount": "2",
+            "InstanceType": {
+              "Ref": "EMRCoreInstanceType"
+            },
+            "Market": "ON_DEMAND",
+            "Name": "Core Instance"
+          },
+          "Ec2KeyName": {
+            "Ref": "KeyName"
+          },
+          "Ec2SubnetId": {
+            "Fn::GetAtt": [
+              "VPCStack",
+              "Outputs.PrivateSubnet1"
+            ]
+          },
+          "MasterInstanceGroup": {
+            "InstanceCount": "1",
+            "InstanceType": {
+              "Ref": "EMRMasterInstanceType"
+            },
+            "Market": "ON_DEMAND",
+            "Name": "Master Instance"
+          }
+        },
+        "LogUri": {
+          "Fn::Join": [
+            "",
+            [
+              "s3://",
+              {
+                "Ref": "SparkAppLogBucket"
+              }
+            ]
+          ]
+        },
+        "JobFlowRole": {
+          "Ref": "EMRInstanceProfile"
+        },
+        "Name": "EMR Cloud Cluster",
+        "ReleaseLabel": "emr-5.1.0",
+        "ServiceRole": {
+          "Ref": "EMRServiceRole"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "EMR Cluster - Kinesis"
+          }
+        ],
+        "VisibleToAllUsers": "true",
+        "Configurations": [
+          {
+            "Classification": "zeppelin-env",
+            "Configurations": [
+              {
+                "Classification": "export",
+                "Configurations": [],
+                "ConfigurationProperties": {
+                  "CLASSPATH": ":/var/lib/zeppelin/.ivy2/jars/*:/usr/lib/hadoop-lzo/lib/*:/usr/lib/hadoop/hadoop-aws.jar:/usr/share/aws/aws-java-sdk/*:/usr/share/aws/emr/emrfs/conf:/usr/share/aws/emr/emrfs/lib/*:/usr/share/aws/emr/emrfs/auxlib/*",
+                  "SPARK_SUBMIT_OPTIONS": {
+                    "Fn::Join": [
+                      " ",
+                      [
+                        "\"$SPARK_SUBMIT_OPTIONS --packages org.apache.spark:spark-streaming-kinesis-asl_2.11:2.0.1",
+                        "--conf spark.executorEnv.PYTHONPATH=/usr/lib/spark/python/lib/py4j-0.9-src.zip:/usr/lib/spark/python/:<CPS>{{PWD}}/pyspark.zip<{{PWD}}>/py4j-0.9-src.zip",
+                        "--conf spark.yarn.isPython=true\""
+                      ]
+                    ]
+                  },
+                  "ZEPPELIN_NOTEBOOK_STORAGE":"org.apache.zeppelin.notebook.repo.S3NotebookRepo",
+                  "ZEPPELIN_NOTEBOOK_S3_BUCKET": {
+                    "Ref": "ApplicationBucket"
+                  },
+                  "ZEPPELIN_NOTEBOOK_S3_USER": "hadoop"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "Type": "AWS::EMR::Cluster"
+    },
+    "ZeppelinConfigStep": {
+      "Type": "AWS::EMR::Step",
+      "Properties": {
+        "ActionOnFailure": "CONTINUE",
+        "HadoopJarStep": {
+          "Args": [
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "s3://",
+                  {
+                    "Ref": "ApplicationBucket"
+                  },
+                  "/zeppelin_config.sh"
+                ]
+              ]
+            }
+          ],
+          "Jar": {
+            "Fn::Join": [
+              "",
+              [
+                "s3://",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".elasticmapreduce/libs/script-runner/script-runner.jar"
+              ]
+            ]
+          }
+        },
+        "Name": "zeppelin_config",
+        "JobFlowId": {
+          "Ref": "EMRCluster"
+        }
+      }
+    },
+    "AppJarScript": {
+      "Type": "AWS::EMR::Step",
+      "Condition": "SubmitTypeScript",
+      "Properties": {
+        "ActionOnFailure": "CONTINUE",
+        "HadoopJarStep": {
+          "Args": [
+            {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Ref": "SubmitScript"
+                  }
+                ]
+              ]
+            }
+          ],
+          "Jar": {
+            "Fn::Join": [
+              "",
+              [
+                "s3://",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ".elasticmapreduce/libs/script-runner/script-runner.jar"
+              ]
+            ]
+          }
+        },
+        "Name": "zeppelin_config",
+        "JobFlowId": {
+          "Ref": "EMRCluster"
+        }
+      }
+    },
+    "AppJarStep": {
+      "Type": "AWS::EMR::Step",
+      "Condition": "SubmitTypeCommand",
+      "Properties": {
+        "ActionOnFailure": "CONTINUE",
+        "HadoopJarStep": {
+          "Args": [ "spark-submit",
+            {
+               "Ref" : "SubmitCommand"
+            }
+          ],
+          "Jar": "command-runner.jar",
+          "MainClass": ""
+        },
+        "Name": "SparkStep",
+        "JobFlowId": {
+          "Ref": "EMRCluster"
+        }
+      }
+    },
+    "SampleAppStep": {
+      "Type": "AWS::EMR::Step",
+      "Condition": "DeploySampleApp",
+      "Properties": {
+        "ActionOnFailure": "CONTINUE",
+        "HadoopJarStep": {
+          "Args": [
+            "spark-submit",
+            "--deploy-mode",
+            "cluster",
+            "--class",
+            "com.analytics.spark.streaming.KinesisSparkStreaming",
+            "--master",
+            "yarn",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "s3://",
+                  {
+                    "Ref": "ApplicationBucket"
+                  },
+                  "/",
+                  {
+                    "Ref": "SampleSparkAppJar"
+                  }
+                ]
+              ]
+            },
+            {
+              "Ref" : "SampleSparkAppName"
+            },
+            {
+              "Ref" : "KinesisStream"
+            },
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Ref": "SparkOutputBucket"
+            }
+          ],
+          "Jar": "command-runner.jar",
+          "MainClass": ""
+        },
+        "Name": "SparkStep",
+        "JobFlowId": {
+          "Ref": "EMRCluster"
+        }
+      }
+    },
+    "SolutionHelperRole": {
+      "Type": "AWS::IAM::Role",
+      "Condition": "AnonymousDatatoAWS",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "Custom_Solution_Helper_Permissions",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "arn:aws:logs:",
+                        {
+                          "Ref": "AWS::Region"
+                        },
+                        ":",
+                        {
+                          "Ref": "AWS::AccountId"
+                        },
+                        ":log-group:/aws/lambda/*"
+                      ]
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "SolutionHelper": {
+      "Type": "AWS::Lambda::Function",
+      "Condition": "AnonymousDatatoAWS",
+      "Properties": {
+        "Handler": "solution-helper.lambda_handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "SolutionHelperRole",
+            "Arn"
+          ]
+        },
+        "Description": "This function creates a CloudFormation custom lambda resource that creates custom lambda functions by finding and replacing specific values from existing lambda function code.",
+        "Code": {
+          "S3Bucket": {
+            "Fn::Join": [
+              "",
+              [
+                "solutions-",
+                {
+                  "Ref": "AWS::Region"
+                }
+              ]
+            ]
+          },
+          "S3Key": "library/solution-helper/v3/solution-helper.zip"
+        },
+        "Runtime": "python2.7",
+        "Timeout": "300"
+      }
+    },
+    "CreateUniqueID": {
+      "Type": "Custom::CreateUUID",
+      "Condition": "AnonymousDatatoAWS",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "SolutionHelper",
+            "Arn"
+          ]
+        },
+        "CreateUniqueID": "true"
+      },
+      "DependsOn": "SolutionHelper"
+    },
+    "AnonymousData": {
+      "Type": "Custom::AnonymousData",
+      "Condition": "AnonymousDatatoAWS",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "SolutionHelper",
+            "Arn"
+          ]
+        },
+        "SendAnonymousData": {
+          "Fn::Join": [
+            "",
+            [
+              "{ 'Solution' : '",
+              "SO00016",
+              "', ",
+              "'UUID' : '",
+              {
+                "Fn::GetAtt": [
+                  "CreateUniqueID",
+                  "UUID"
+                ]
+              },
+              "', ",
+              "'Data': {",
+              "'Master': '1',",
+              "'InstanceType': '",
+              {
+                "Ref": "EMRMasterInstanceType"
+              },
+              "',",
+              "'CoreInstance': '2',",
+              "'InstanceType': '",
+              {
+                "Ref": "EMRCoreInstanceType"
+              },
+              "',",
+              "'Region': '",
+              {
+                "Ref": "AWS::Region"
+              },
+              "'",
+              "}",
+              "}"
+            ]
+          ]
+        }
+      },
+      "DependsOn": "CreateUniqueID"
+    },
+    "KinesisProducerStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "DeploySampleApp",
+      "Properties": {
+        "Parameters": {
+          "BucketName": {
+            "Ref": "ApplicationBucket"
+          },
+          "SSHSecurityGroup": {
+            "Fn::GetAtt": [
+              "VPCStack",
+              "Outputs.PrivateSecurityGroupId"
+            ]
+          },
+          "ProducerSourceCode": {
+            "Ref": "ProducerSourceCode"
+          },
+          "ProducerInstanceType": {
+            "Ref": "ProducerInstanceType"
+          },
+          "KeyName": {
+            "Ref": "KeyName"
+          },
+          "SubnetID": {
+            "Fn::GetAtt": [
+              "VPCStack",
+              "Outputs.PrivateSubnet2"
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/solutions-reference/realtime-analytics-spark-streaming/latest/producer.template"
+      },
+      "DependsOn": "EMRCluster"
+    }
+  },
+  "Outputs": {
+    "ArtifactBucket": {
+      "Description": "Name of the Sample App Bucket",
+      "Value": {
+        "Ref": "ApplicationBucket"
+      }
+    },
+    "SparkOutputLocation": {
+      "Condition" : "DeploySampleApp",
+      "Description": "Demo App, Spark Streaming Historical data output location",
+      "Value": {
+        "Ref": "SparkOutputBucket"
+      }
+    },
+    "KinesisStreamName": {
+      "Description": "Kinesis ARN - Default myStream",
+      "Value": {
+        "Fn::GetAtt": [
+          "KinesisStream1",
+          "Arn"
+        ]
+      }
+    },
+    "EMRClusterName": {
+      "Description": "EMR Cluster",
+      "Value": {
+        "Ref" : "EMRCluster"
+      }
+    },
+    "EMRServiceRole": {
+      "Description": "ServiceRole",
+      "Value": {
+        "Ref": "EMRServiceRole"
+      }
+    },
+    "EMRInstanceProfile": {
+      "Description": "EMRInstanceProfile",
+      "Value": {
+        "Ref": "EMRInstanceProfile"
+      }
+    },
+    "BastionHost": {
+      "Description": "Bastion Host DNS Name",
+      "Value": {
+        "Fn::GetAtt": [
+          "VPCStack",
+          "Outputs.BastionHost"
+        ]
+      }
+    },
+    "KinesisProducer": {
+      "Description": "Kinesis Stream Producer EC2",
+      "Condition": "DeploySampleApp",
+      "Value": {
+        "Fn::GetAtt": [
+          "KinesisProducerStack",
+          "Outputs.KinesisProducer"
+        ]
+      }
+    }
+  }
+}
