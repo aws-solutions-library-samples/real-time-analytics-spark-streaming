@@ -248,33 +248,9 @@
       "Description": "Enter the Kinesis Stream Shard count."
     },
     "SubmitMode": {
-      "Description": "Format of Spark Submit Mode (AppJar/Zeppelin)",
+      "Description": "Spark Demo Application",
       "Type": "String",
-      "Default": "AppJar",
-      "AllowedValues": [
-        "Zeppelin",
-        "AppJar"
-      ]
-    },
-    "Type": {
-      "Description": "Spark Submit type as a (Script/Command) for AppJar",
-      "Type": "String",
-      "Default": "None",
-      "AllowedValues": [
-        "None",
-        "Script",
-        "Command"
-      ]
-    },
-    "Script": {
-      "Type": "String",
-      "Default": "",
-      "Description": "{s3://{bucket_location/spark_submit.sh}"
-    },
-    "Command": {
-      "Type": "CommaDelimitedList",
-      "Default": "",
-      "Description": "--deploy-mode,{cluster/client},--class {className},--master,{yarn/local[?]},{s3://AppLocation/AppJar},{Appname},{StreamName},{OutputLoc}"
+      "Default": "DemoApp"
     },
     "RemoteAccessCIDR": {
       "Description": "The IP address range that can be used to SSH to the EC2 instances.",
@@ -372,24 +348,12 @@
         "Yes"
       ]
     },
-    "AppMode": {
+    "DeploySampleApp": {
       "Fn::Equals": [
         {
           "Ref": "SubmitMode"
         },
-        "AppJar"
-      ]
-    },
-    "SubmitTypeScript": {
-      "Fn::And": [
-        {"Fn::Equals": ["Script", {"Ref": "Type"}]},
-        {"Condition": "AppMode"}
-      ]
-    },
-    "SubmitTypeCommand": {
-      "Fn::And": [
-        {"Fn::Equals": ["Command", {"Ref": "Type"}]},
-        {"Condition": "AppMode"}
+        "DemoApp"
       ]
     }
   },
@@ -441,7 +405,7 @@
         "Label": {
           "default": "Application"
         },
-        "Parameters": ["SubmitMode", "Type", "Script", "Command"]
+        "Parameters": ["SubmitMode"]
       },{
         "Label": {
           "default": "AnonymousData"
@@ -456,15 +420,12 @@
       "Properties": {
         "BucketName": {
           "Ref": "ArtifactBucket"
-        },
-        "VersioningConfiguration": {
-          "Status": "Enabled"
         }
-      },
-      "DeletionPolicy": "Retain"
+      }
     },
     "SparkOutputBucket": {
       "Type": "AWS::S3::Bucket",
+      "Condition" : "DeploySampleApp",
       "Properties": {
         "BucketName": {
           "Fn::Join": [
@@ -476,12 +437,8 @@
               "-output"
             ]
           ]
-        },
-        "VersioningConfiguration": {
-          "Status": "Enabled"
         }
-      },
-      "DeletionPolicy": "Retain"
+      }
     },
     "SparkAppLogBucket": {
       "Type": "AWS::S3::Bucket",
@@ -496,12 +453,8 @@
               "-log"
             ]
           ]
-        },
-        "VersioningConfiguration": {
-          "Status": "Enabled"
         }
-      },
-      "DeletionPolicy": "Retain"
+      }
     },
     "SparkDemoAppResource": {
       "Type": "Custom::SparkDemoAppResource",
@@ -546,11 +499,19 @@
                 "' \n",
                 "        try: \n",
                 "            s3 = boto3.resource('s3', region_name=MyStackRegion, config=Config(signature_version='s3v4')) \n",
+                "            copy_source={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/KinesisSparkStreamingV2.jar'} \n",
+                "            copy_source1={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/_KinesisSparkStreaming.json'} \n",
+                "            copy_source2={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/KinesisProducer.jar'} \n",
                 "            copy_source3={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/zeppelin_config.sh'} \n",
+                "            copy_source4={'Bucket':'solutions-reference','Key':'realtime-analytics-spark-streaming/v1/spark_submit.sh'} \n",
+                "            s3.meta.client.copy(copy_source, Bucket, 'KinesisSparkStreamingV2.jar') \n",
+                "            s3.meta.client.copy(copy_source1, Bucket, '_KinesisSparkStreaming.json') \n",
+                "            s3.meta.client.copy(copy_source2, Bucket, 'KinesisProducer.jar') \n",
                 "            s3.meta.client.copy(copy_source3, Bucket, 'zeppelin_config.sh') \n",
+                "            s3.meta.client.copy(copy_source4, Bucket, 'spark_submit.sh') \n",
                 "        except Exception as e: \n",
                 "            print(e) \n",
-                "        responseData={'fileKey':'zeppelin_config.sh'} \n",
+                "        responseData={'fileKey':'KinesisSparkStreamingV2.jar'} \n",
                 "        cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData) \n",
                 "    elif event['RequestType'] == 'Delete': \n",
                 "        print(\"CustomResourceDelete\") \n",
@@ -873,6 +834,7 @@
     },
     "OutputBucketPolicy" : {
       "Type" : "AWS::S3::BucketPolicy",
+      "Condition" : "DeploySampleApp",
       "Properties" : {
         "Bucket" : {"Ref" : "SparkOutputBucket"},
         "PolicyDocument": {
@@ -1164,52 +1126,39 @@
         }
       }
     },
-    "AppJarScript": {
+    "SampleAppStep": {
       "Type": "AWS::EMR::Step",
-      "Condition": "SubmitTypeScript",
+      "Condition": "DeploySampleApp",
       "Properties": {
         "ActionOnFailure": "CONTINUE",
         "HadoopJarStep": {
           "Args": [
+            "spark-submit",
+            "--deploy-mode",
+            "cluster",
+            "--class",
+            "com.analytics.spark.streaming.KinesisSparkStreaming",
+            "--master",
+            "yarn",
             {
               "Fn::Join": [
                 "",
                 [
+                  "s3://",
                   {
-                    "Ref": "Script"
-                  }
+                    "Ref": "ArtifactBucket"
+                  },
+                  "/KinesisSparkStreamingV2.jar"
                 ]
               ]
-            }
-          ],
-          "Jar": {
-            "Fn::Join": [
-              "",
-              [
-                "s3://",
-                {
-                  "Ref": "AWS::Region"
-                },
-                ".elasticmapreduce/libs/script-runner/script-runner.jar"
-              ]
-            ]
-          }
-        },
-        "Name": "zeppelin_config",
-        "JobFlowId": {
-          "Ref": "EMRCluster"
-        }
-      }
-    },
-    "AppJarStep": {
-      "Type": "AWS::EMR::Step",
-      "Condition": "SubmitTypeCommand",
-      "Properties": {
-        "ActionOnFailure": "CONTINUE",
-        "HadoopJarStep": {
-          "Args": [ "spark-submit",
+            },
+            "app-spark-demo",
+            "myStream",
             {
-               "Ref" : "Command"
+              "Ref": "AWS::Region"
+            },
+            {
+              "Ref": "SparkOutputBucket"
             }
           ],
           "Jar": "command-runner.jar",
@@ -1368,6 +1317,33 @@
         }
       },
       "DependsOn": "CreateUniqueID"
+    },
+    "KinesisProducerStack": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "DeploySampleApp",
+      "Properties": {
+        "Parameters": {
+          "BucketName": {
+            "Ref": "ArtifactBucket"
+          },
+          "SSHSecurityGroup": {
+            "Ref": "PrivateSecurityGroup"
+          },
+          "ProducerSourceCode": "KinesisProducer.jar",
+          "ProducerInstanceType": "c3.xlarge",
+          "KeyName": {
+            "Ref": "KeyPairName"
+          },
+          "SubnetID": {
+            "Fn::GetAtt": [
+              "VPCStackQ",
+              "Outputs.PrivateSubnet2AID"
+            ]
+          }
+        },
+        "TemplateURL": "https://s3.amazonaws.com/solutions-reference/realtime-analytics-spark-streaming/latest/producer.template"
+      },
+      "DependsOn": "EMRCluster"
     }
   },
   "Outputs": {
@@ -1378,7 +1354,8 @@
       }
     },
     "SparkOutputLocation": {
-      "Description": "Spark Streaming Historical data output location",
+      "Condition" : "DeploySampleApp",
+      "Description": "Demo App, Spark Streaming Historical data output location",
       "Value": {
         "Ref": "SparkOutputBucket"
       }
@@ -1404,6 +1381,16 @@
         "Fn::GetAtt": [
           "BastionHost",
           "PublicDnsName"
+        ]
+      }
+    },
+    "KinesisProducer": {
+      "Description": "Kinesis Stream Producer EC2",
+      "Condition": "DeploySampleApp",
+      "Value": {
+        "Fn::GetAtt": [
+          "KinesisProducerStack",
+          "Outputs.KinesisProducer"
         ]
       }
     }
