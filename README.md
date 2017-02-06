@@ -1,3 +1,6 @@
+# Solutions Reference - 02/06/2017
+We have published an updated solution at https://aws.amazon.com/answers/big-data/real-time-analytics-spark-streaming/
+This makes the solution easier to deploy.The readme has been updated to the latest installation instructions, please refer to the solution page for additional information.  We will maintain this repo with the latest template and code.
 
 # Real-Time Analytics with Spark Streaming
 
@@ -33,9 +36,10 @@ This design deploys a spark application written in high-level programming langua
 
 ## Cloudformation Templates
 
-•	vpc-with-private-public-subnets.template<br />
+•	aws-vpc.template<br />
 •	producer.template<br />
-•	realtime-analytics.template<br />
+•	real-time-analytics-spark-streaming-demo.template<br />
+•       real-time-analytics-spark-streaming.template<br />
 
 ***
 
@@ -46,6 +50,7 @@ Licensed under the Amazon Software License (the "License"). You may not use this
     http://aws.amazon.com/asl/
 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
+
 
 
 
