@@ -654,7 +654,7 @@
           "NATInstanceType": "t2.medium",
           "CreateAdditionalPrivateSubnets": "false"
         },
-        "TemplateURL": "https://s3.amazonaws.com/quickstart-reference/aws/vpc/latest/templates/aws-vpc.template"
+        "TemplateURL": "https://aws-quickstart.s3.amazonaws.com/quickstart-aws-vpc/templates/aws-vpc.template"
       }
     },
     "BastionSecurityGroup": {
