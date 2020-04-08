@@ -1,0 +1,85 @@
+{
+  "mode": "patterns",
+  "proxySettings": [
+    {
+      "title": "EMR SOCKS Proxy",
+      "type": 3,
+      "color": "#cc8c2a",
+      "address": "localhost",
+      "port": 8157,
+      "proxyDNS": true,
+      "active": true,
+      "whitePatterns": [
+        {
+          "pattern": "*ec2*.amazonaws.com*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "*ec2*.amazonaws.com*"
+        },
+        {
+          "pattern": "*ec2*.compute*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "*ec2*.compute*"
+        },
+        {
+          "pattern": "http://10.*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "10.*"
+        },
+        {
+          "pattern": "*10*.amazonaws.com*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "*10*.amazonaws.com*"
+        },
+        {
+          "pattern": "*10*.compute*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "*10*.compute*"
+        },
+        {
+          "pattern": "*.compute.internal*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "*.compute.internal*"
+        },
+        {
+          "pattern": "*.ec2.internal*",
+          "type": 1,
+          "protocols": 1,
+          "active": true,
+          "title": "*.ec2.internal*"
+        }
+      ],
+      "blackPatterns": [],
+      "id": "zglrmb1508957730425"
+    },
+    {
+      "active": true,
+      "title": "Default",
+      "notes": "These are the settings that are used when no patterns match a URL.",
+      "color": "#0055E5",
+      "type": 5,
+      "whitePatterns": [
+        {
+          "title": "all URLs",
+          "active": true,
+          "pattern": "*",
+          "type": 1,
+          "protocols": 1
+        }
+      ],
+      "blackPatterns": [],
+      "id": "k20d21508277536715"
+    }
+  ]
+}

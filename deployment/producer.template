@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: '(SO0016p) - RealTime-Analytics with Spark Streaming Producer Stack: Template to launch Sample Kinesis Stream Producer. Version %%VERSION%%'
+Parameters:
+  LatestHVM64AMIId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  BucketName:
+    Type: String
+    Default: bucketname
+    Description: Enter the bucket name where the Producer Application source code is located.
+  SSHSecurityGroup:
+    Description: Security group that allows SSH access to the Instance
+    Type: AWS::EC2::SecurityGroup::Id
+    ConstraintDescription: must be list of EC2 security group ids with permissions to access
+  ProducerSourceCode:
+    Type: String
+    Default: kinesis-producer.jar
+    Description: Enter the S3 object key for the Producer Application.
+  ProducerInstanceType:
+    AllowedValues:
+      - t2.small
+      - t2.medium
+      - t3.large
+      - t3.medium
+    ConstraintDescription: must be a valid EC2 instance type.
+    Default: t2.medium
+    Description: EC2 instance type
+    Type: String
+  KeyName:
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+  SubnetID:
+    Description: SubnetId for the Instance - public subnet
+    Type: AWS::EC2::Subnet::Id
+    ConstraintDescription: must be list of Subnet ids
+  StreamName:
+    Type: String
+    Default: default-data-stream
+    Description: Name of the Kinesis stream to which the producer will publish data
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Application
+        Parameters:
+          - ProducerSourceCode
+          - BucketName
+      - Label:
+          default: Environment
+        Parameters:
+          - ProducerInstanceType
+          - KeyName
+          - SSHSecurityGroup
+          - SubnetID
+Resources:
+  ProducerRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W11
+            reason: CloudWatch action does not support resource level permissions
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: demo-producer-policy
+          # https://docs.aws.amazon.com/streams/latest/dev/tutorial-stock-data-kplkcl-iam.html
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kinesis:PutRecord
+                  - kinesis:PutRecords
+                  - kinesis:DescribeStream
+                  - kinesis:DescribeStreamSummary
+                  - kinesis:RegisterStreamConsumer
+                  - kinesis:ListShards
+                Resource: !Sub 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${StreamName}'
+              - Effect: Allow
+                Action:
+                  - kinesis:DescribeStreamConsumer
+                  - kinesis:SubscribeToShard
+                Resource: !Sub 'arn:aws:kinesis:${AWS::Region}:${AWS::AccountId}:stream/${StreamName}/*'
+              - Effect: Allow
+                Action: cloudwatch:PutMetricData
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub 'arn:aws:s3:::${BucketName}/${ProducerSourceCode}'
+  ProducerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref 'ProducerRole'
+  KinesisStreamProducer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref 'LatestHVM64AMIId'
+      InstanceType: !Ref 'ProducerInstanceType'
+      KeyName: !Ref 'KeyName'
+      IamInstanceProfile: !Ref 'ProducerInstanceProfile'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum update -y
+          yum install -y java-1.8.0-openjdk-devel.x86_64
+          aws s3 cp s3://${BucketName}/${ProducerSourceCode} /home/ec2-user/ --region ${AWS::Region}
+          java -jar /home/ec2-user/${ProducerSourceCode} ${StreamName} ${AWS::Region} 10
+      NetworkInterfaces:
+        - DeleteOnTermination: true
+          DeviceIndex: '0'
+          GroupSet:
+            - !Ref 'SSHSecurityGroup'
+          SubnetId: !Ref 'SubnetID'
+      Tags:
+        - Key: Name
+          Value: KinesisStreamProducer
+  RecoveryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Trigger a recovery when instance status check fails for 15 consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Statistic: Minimum
+      Period: 60
+      EvaluationPeriods: 15
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 0
+      AlarmActions:
+        - !Sub 'arn:aws:automate:${AWS::Region}:ec2:recover'
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref 'KinesisStreamProducer'
+Outputs:
+  KinesisProducer:
+    Description: Kinesis Stream Producer EC2
+    Value: !GetAtt 'KinesisStreamProducer.PrivateIp'
