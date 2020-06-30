@@ -9,8 +9,7 @@
   <version>1.0</version>
 
   <name>kinesis-consumer</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>https://aws.amazon.com/solutions/implementations/real-time-analytics-spark-streaming/</url>
 
   <properties>
     <scala.version>2.11.5</scala.version>
@@ -51,10 +50,11 @@
       <artifactId>spark-streaming-kinesis-asl_2.11</artifactId>
       <version>2.4.5</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
     <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-        <version>1.2.17</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.30</version>
     </dependency>
     <dependency>
       <groupId>com.google.protobuf</groupId>
@@ -128,9 +128,6 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>reference.conf</resource>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
-                  <resource>log4j.properties</resource>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>

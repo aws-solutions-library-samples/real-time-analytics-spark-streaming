@@ -867,6 +867,8 @@ Resources:
         rules_to_suppress:
           - id: W11
             reason: Refer to inline comments for suppression reasons
+          - id: W76
+            reason: All permissions listed are required for the EMR cluster
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -974,6 +976,8 @@ Resources:
         rules_to_suppress:
           - id: W11
             reason: Refer to inline comments for suppression reasons
+          - id: W76
+            reason: All permissions listed are required for the EMR cluster
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -1361,6 +1365,8 @@ Resources:
         rules_to_suppress:
           - id: W28
             reason: Table name must be set to the application name
+          - id: W74
+            reason: Default encryption with DynamoDB managed keys is sufficient
     Properties:
       TableName: app-spark-demo
       BillingMode: PROVISIONED

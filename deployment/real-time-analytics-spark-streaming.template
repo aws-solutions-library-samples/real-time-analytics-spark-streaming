@@ -828,6 +828,8 @@ Resources:
         rules_to_suppress:
           - id: W11
             reason: Refer to inline comments for suppression reasons
+          - id: W76
+            reason: All permissions listed are required for the EMR cluster
     Properties:
       AssumeRolePolicyDocument:
         Statement:
@@ -921,6 +923,8 @@ Resources:
         rules_to_suppress:
           - id: W11
             reason: Refer to inline comments for suppression reasons
+          - id: W76
+            reason: All permissions listed are required for the EMR cluster
     Properties:
       AssumeRolePolicyDocument:
         Statement:

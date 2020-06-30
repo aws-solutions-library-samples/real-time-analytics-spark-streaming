@@ -41,7 +41,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 public class SampleProducer
 {
-    private static final Logger log = LoggerFactory.getLogger(SampleProducer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleProducer.class);
 
     // setting default value. can be changed through commandline arguments
     private static final String STREAM_NAME = "default-data-stream";
@@ -94,7 +94,7 @@ public class SampleProducer
         final String secondsToRunString = getArgIfPresent(args, 2, String.valueOf(SECONDS_TO_RUN_DEFAULT));
         final int secondsToRun = Integer.parseInt(secondsToRunString);
         if (secondsToRun <= 0) {
-            log.error("Seconds to Run should be a positive integer");
+            LOGGER.error("Seconds to Run should be a positive integer");
             System.exit(1);
         }
 
@@ -107,9 +107,9 @@ public class SampleProducer
                 // If we see any failures, we will log them.
                 if (t instanceof UserRecordFailedException) {
                     Attempt last = Iterables.getLast(((UserRecordFailedException) t).getResult().getAttempts());
-                    log.error(String.format("Record failed to put - %s : %s", last.getErrorCode(), last.getErrorMessage()));
+                    LOGGER.error(String.format("Record failed to put - %s : %s", last.getErrorCode(), last.getErrorMessage()));
                 }
-                log.error("Exception during put", t);
+                LOGGER.error("Exception during put", t);
             };
 
             @Override public void onSuccess(UserRecordResult result) {
@@ -138,9 +138,10 @@ public class SampleProducer
                 double putPercent = 100.0 * put / total;
                 long done = completed.get();
                 double donePercent = 100.0 * done / total;
-                log.info(String.format(
-                        "Put %d of %d so far (%.2f %%), %d have completed (%.2f %%)",
-                        put, total, putPercent, done, donePercent));
+                LOGGER.info(String.format(
+                    "Put %d of %d so far (%.2f %%), %d have completed (%.2f %%)",
+                    put, total, putPercent, done, donePercent
+                ));
             }
         }, 1, 1, TimeUnit.SECONDS);
 
@@ -148,12 +149,12 @@ public class SampleProducer
 
         EXECUTOR.awaitTermination(secondsToRun + 1, TimeUnit.SECONDS);
 
-        log.info("Waiting for remaining puts to finish...");
+        LOGGER.info("Waiting for remaining puts to finish...");
         producer.flushSync();
-        log.info("All records complete.");
+        LOGGER.info("All records complete.");
 
         producer.destroy();
-        log.info("Finished.");
+        LOGGER.info("Finished.");
     }
 
     private static String randomExplicitHashKey() {
@@ -179,7 +180,7 @@ public class SampleProducer
                     try {
                         task.run();
                     } catch (Exception e) {
-                        log.error("Error running task", e);
+                        LOGGER.error("Error running task", e);
                         System.exit(1);
                     }
                 }
@@ -209,13 +210,13 @@ public class SampleProducer
 
         // For debugging purposes, the following two lines can be uncommented:
         // String recordString = record.toString();
-        // log.info(recordString);
+        // LOGGER.info(recordString);
 
         byte[] sendData = null;
         try {
             sendData = record.toString().getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
-            log.error("Error converting string to byte array " + e);
+            LOGGER.error("Error converting string to byte array " + e);
         }
 
         return ByteBuffer.wrap(sendData);

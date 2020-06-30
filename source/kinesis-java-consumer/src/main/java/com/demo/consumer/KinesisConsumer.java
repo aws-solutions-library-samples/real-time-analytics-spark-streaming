@@ -20,7 +20,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.text.SimpleDateFormat;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.io.compress.GzipCodec;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.function.FlatMapFunction;
@@ -46,7 +48,7 @@ import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.demo.model.Record;
 
 public class KinesisConsumer {
-    static final Logger logger = Logger.getLogger(KinesisConsumer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KinesisConsumer.class);
     private static final String DELIMITER = ",";
 
     public static void main(String[] args) throws Exception {
@@ -67,7 +69,7 @@ public class KinesisConsumer {
         String outputLocation = args[3];
 
         String endpointURL = "https://kinesis." + regionName + ".amazonaws.com";
-        logger.info("EndpointURL is " + endpointURL);
+        LOGGER.info("EndpointURL is " + endpointURL);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd/HH/mm");
 
@@ -79,7 +81,7 @@ public class KinesisConsumer {
         AmazonKinesis kinesis = clientBuilder.build();
         int numShards = kinesis.describeStream(streamName).getStreamDescription().getShards().size();
         int numStreams = numShards;
-        logger.info("Number of shards is " + numShards);
+        LOGGER.info("Number of shards is " + numShards);
 
         // Spark Streaming batch interval
         Duration batchInterval = Durations.minutes(1);
@@ -111,11 +113,11 @@ public class KinesisConsumer {
         JavaDStream<byte[]> unionStreams;
         if (streamsList.size() > 1) {
             // Union all the streams if there is more than 1 stream
-            logger.info("Stream size is greater than 1");
+            LOGGER.info("Stream size is greater than 1");
             unionStreams = jssc.union(streamsList.get(0), streamsList.subList(1, streamsList.size()));
         } else {
             // Otherwise, just use the 1 stream
-            logger.info("Stream size is equal to 1");
+            LOGGER.info("Stream size is equal to 1");
             unionStreams = streamsList.get(0);
         }
 
@@ -130,7 +132,7 @@ public class KinesisConsumer {
 
         // Convert RDDs of the items DStream to DataFrame and run SQL query
         items.window(Durations.minutes(1)).foreachRDD((rdd, time) -> {
-            logger.info("========= Time is " + time + " =========");
+            LOGGER.info("========= Time is " + time + " =========");
             if (rdd.count() > 0) {
                 String outPartitionFolder = sdf.format(time.milliseconds());
                 SparkSession spark = JavaSparkSessionSingleton.getInstance(rdd.context().getConf());

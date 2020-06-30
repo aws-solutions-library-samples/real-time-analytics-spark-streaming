@@ -10,21 +10,24 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**Please complete the following information about the solution:**
-- [ ] Version: [e.g. v1.1.0]
-- [ ] Region: [e.g. us-east-1]
-- [ ] Stack parameters (please make sure not to include any sensitive information such as IP address)
-- [ ] Was the solution modified from the version published on this repository?
-- [ ] If the answer to the previous question was yes, are the changes available on GitHub?
-
 **To Reproduce**
-Steps to reproduce the behavior
+Steps to reproduce the behavior.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**Please complete the following information about the solution:**
+- [ ] Version: [e.g. v1.0.0]
+
+To get the version of the solution, you can look at the description of the created CloudFormation stack. For example, "_(SO0016) - RealTime-Analytics with Spark Streaming. Version **v1.0.0**_".
+
+- [ ] Region: [e.g. us-east-1]
+- [ ] Was the solution modified from the version published on this repository?
+- [ ] If the answer to the previous question was yes, are the changes available on GitHub?
+- [ ] Have you checked your [service quotas](https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html) for the sevices this solution [uses](https://docs.aws.amazon.com/solutions/latest/real-time-analytics-spark-streaming/resources.html)?
+
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If applicable, add screenshots to help explain your problem (please **DO NOT include sensitive information**).
 
 **Additional context**
 Add any other context about the problem here.
