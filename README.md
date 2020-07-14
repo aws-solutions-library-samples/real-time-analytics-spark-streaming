@@ -51,6 +51,48 @@ Once all rules have been removed, the security group can be deleted:
 aws ec2 delete-security-group --group-id $SECURITY_GROUP_ID
 ```
 
+## Spark Security
+In Apache Spark, security is OFF by default (for more details, check this [GitHub Advisory](https://github.com/advisories/GHSA-phg2-9c5g-m4q7)). To mitigate this, the solution leverages network-level restrictions (more specifically, private subnets and security groups that only allow access from a bastion host) to secure the cluster. These restrictions are highlighted below, with links to the corresponding sections from the CloudFormation templates.
+
+[VPC](deployment/aws-vpc.template#L253-L265):
+```yaml
+  PrivateSubnet1A:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref 'VPC'
+      CidrBlock: !Ref 'PrivateSubnet1ACIDR'
+      AvailabilityZone: !Select
+        - '0'
+        - !Ref 'AvailabilityZones'
+      Tags:
+        - Key: Name
+          Value: Private subnet 1A
+        - Key: Network
+          Value: Private
+
+  PrivateSubnet1ARoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref 'PrivateSubnet1ARouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      NatGatewayId: !Ref 'NATGateway1'
+```
+
+[EMR Cluster](deployment/real-time-analytics-spark-streaming.template#L1100):
+```yaml
+  EMRCluster:
+    Type: AWS::EMR::Cluster
+    Properties:
+      Applications:
+        - Name: Hadoop
+        - Name: Hive
+        - Name: Spark
+        - Name: Zeppelin
+        - Name: Hue
+      Instances:
+        Ec2SubnetId: !GetAtt 'VPCStackQ.Outputs.PrivateSubnet1AID'
+```
+
 ***
 
 Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
