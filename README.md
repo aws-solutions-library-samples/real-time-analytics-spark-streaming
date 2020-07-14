@@ -52,9 +52,9 @@ aws ec2 delete-security-group --group-id $SECURITY_GROUP_ID
 ```
 
 ## Spark Security
-In Apache Spark, security is OFF by default (for more details, check this [GitHub Advisory](https://github.com/advisories/GHSA-phg2-9c5g-m4q7)). To mitigate this, the solution leverages network-level restrictions (such as private subnets and security groups that only allow access from a bastion host) to secure the cluster.
+In Apache Spark, security is OFF by default (for more details, check this [GitHub Advisory](https://github.com/advisories/GHSA-phg2-9c5g-m4q7)). To mitigate this, the solution leverages network-level restrictions (more specifically, private subnets and security groups that only allow access from a bastion host) to secure the cluster. These restrictions are highlighted below, with links to the corresponding sections from the CloudFormation templates.
 
-[VPC template](deployment/aws-vpc.template):
+[VPC](deployment/aws-vpc.template#L253-L265):
 ```yaml
   PrivateSubnet1A:
     Type: AWS::EC2::Subnet
@@ -78,7 +78,7 @@ In Apache Spark, security is OFF by default (for more details, check this [GitHu
       NatGatewayId: !Ref 'NATGateway1'
 ```
 
-[Cluster template](deployment/real-time-analytics-spark-streaming.template):
+[EMR Cluster](deployment/real-time-analytics-spark-streaming.template#L1100):
 ```yaml
   EMRCluster:
     Type: AWS::EMR::Cluster
