@@ -13,13 +13,9 @@ THIRD PARTY COMPONENTS
 This software includes third party software subject to the following copyrights:
 
 AWS SDK under the Apache License Version 2.0
-Amazon Kinesis Client Library For Java under the Apache License Version 2.0
-Amazon Kinesis Producer Library under the Apache License Version 2.0
-Apache Log4j under the Apache License Version 2.0
 boto3 under the Apache License Version 2.0
 JSON In Java under the JSON License
 requests under the Apache License Version 2.0
-SLF4J Simple Binding under the Massachusetts Institute of Technology (MIT) license
 Spark Kinesis Integration under the Apache License Version 2.0
 Spark Project Core under the Apache License Version 2.0
 Spark Project SQL under the Apache License Version 2.0

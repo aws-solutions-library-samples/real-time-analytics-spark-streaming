@@ -15,20 +15,16 @@ The AWS tool most frequently used to deal with large volumes of semi-structured 
 ## Abstract
 
 The solution focuses on functional areas such as real-time data from Kinesis is processed with spark streaming and data visualization is done with Zeppelin.
-The solution supports three options in spark submit mode
 
-    * Deploy a default DemoApp application
-    * Deploying a custom spark application for real-time streaming on an EMR cluster
-    * Visualize the real-time data and process the spark application code from Zeppelin UI
-
-This design deploys a spark application written in high-level programming language Scala on a EMR cluster in an Amazon VPC, which is a logically isolated section of the Amazon Web Services (AWS). All the components of EMR with the spark application are deployed into the VPC and within a private subnet. The EMR web Interfaces are enabled by Port forwarding from a bastion host which internally forwards to the EMR master node.
+All the components of EMR are deployed into the VPC and within a private subnet. The EMR web Interfaces are enabled by Port forwarding from a bastion host which internally forwards to the EMR master node.
 
 ## Cloudformation Templates
+* aws-vpc.template
+* real-time-analytics-spark-streaming.template
 
-    * aws-vpc.template
-    * producer.template
-    * real-time-analytics-spark-streaming.template
-    * real-time-analytics-spark-streaming-demo.template (To demo a streaming application)
+## Collection of operational metrics
+This solution collects anonymous operational metrics to help AWS improve the quality of features of the solution.
+For more information, including how to disable this capability, please see the [implementation guide](https://docs.aws.amazon.com/solutions/latest/real-time-analytics-spark-streaming/appendix-c.html).
 
 # Known issues
 
@@ -95,7 +91,7 @@ In Apache Spark, security is OFF by default (for more details, check this [GitHu
 
 ***
 
-Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

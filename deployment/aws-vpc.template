@@ -204,6 +204,13 @@ Resources:
             Resource: !GetAtt FlowLogGroup.Arn
   FlowLogGroup:
     Type: AWS::Logs::LogGroup
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W84
+            reason: Log group is already encrypted with a key managed by CloudWatch
+          - id: W86
+            reason: RetentionInDays for the log group is omitted to preserve data indefinitely
   FlowLog:
     Type: AWS::EC2::FlowLog
     Properties:
