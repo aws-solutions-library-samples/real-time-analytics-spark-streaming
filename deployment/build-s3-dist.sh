@@ -90,6 +90,8 @@ done
 echo "------------------------------------------------------------------------------"
 echo "[Packing] Demo Lambda Function"
 echo "------------------------------------------------------------------------------"
+cp $source_dir/zeppelin/zeppelin_config.sh $build_dist_dir/zeppelin_config.sh
+
 PY_PKG="demo-app-config"
 echo "Building $PY_PKG zip file"
 cd $build_dist_dir
