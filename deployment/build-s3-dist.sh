@@ -88,27 +88,6 @@ do
 done
 
 echo "------------------------------------------------------------------------------"
-echo "[Rebuild] Kinesis Producer Application"
-echo "------------------------------------------------------------------------------"
-cd $source_dir/kinesis-java-producer
-mvn clean install
-cp target/kinesis-producer-1.0-jar-with-dependencies.jar $build_dist_dir/kinesis-producer.jar
-
-cd $template_dir
-
-echo "------------------------------------------------------------------------------"
-echo "[Rebuild] Spark Streaming Consumer"
-echo "------------------------------------------------------------------------------"
-cp $source_dir/appjars/spark_submit.sh $build_dist_dir/spark_submit.sh
-cp $source_dir/zeppelin/zeppelin_config.sh $build_dist_dir/zeppelin_config.sh
-
-cd $source_dir/kinesis-java-consumer
-mvn clean install
-cp target/kinesis-consumer-1.0-jar-with-dependencies.jar $build_dist_dir/kinesis-consumer.jar
-
-cd $template_dir
-
-echo "------------------------------------------------------------------------------"
 echo "[Packing] Demo Lambda Function"
 echo "------------------------------------------------------------------------------"
 PY_PKG="demo-app-config"

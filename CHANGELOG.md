@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2021-12-17
+### Removed
+- Demo component of solution. The consumer application was using an older version of the Kinesis Consumer Library (KCL), which is affected by the Apache Log4j2 Issue (https://aws.amazon.com/security/security-bulletins/AWS-2021-006/). For samples, please refer to the [Amazon EMR documentation](https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-spark-application.html).
+
 ## [1.1.1] - 2020-06-30
 ### Changed
 - Consumer application to use same logging framework as producer (SLF4J)

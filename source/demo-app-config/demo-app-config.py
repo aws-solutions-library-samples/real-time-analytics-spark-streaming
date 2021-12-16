@@ -23,16 +23,6 @@ def lambda_handler(event, context):
         try:
             s3 = boto3.resource('s3', region_name=os.environ['AWS_REGION'], config=Config(signature_version='s3v4'))
 
-            if os.environ['DEMO_APP'] == 'TRUE':
-                copy_source={'Bucket':os.environ['S3_BUCKET'],'Key': os.environ['KEY_PREFIX'] + "/kinesis-consumer.jar"}
-                s3.meta.client.copy(copy_source, Bucket, 'kinesis-consumer.jar')
-
-                copy_source2={'Bucket':os.environ['S3_BUCKET'],'Key':os.environ['KEY_PREFIX'] + "/kinesis-producer.jar"}
-                s3.meta.client.copy(copy_source2, Bucket, 'kinesis-producer.jar')
-
-                copy_source4={'Bucket':os.environ['S3_BUCKET'],'Key':os.environ['KEY_PREFIX'] + "/spark_submit.sh"}
-                s3.meta.client.copy(copy_source4, Bucket, 'spark_submit.sh')
-
             copy_source3={'Bucket':os.environ['S3_BUCKET'],'Key':os.environ['KEY_PREFIX'] + "/zeppelin_config.sh"}
             s3.meta.client.copy(copy_source3, Bucket, 'zeppelin_config.sh')
 

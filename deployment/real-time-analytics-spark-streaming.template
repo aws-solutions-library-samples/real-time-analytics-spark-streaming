@@ -62,8 +62,7 @@ Parameters:
   KinesisStream:
     Type: String
     Default: default-data-stream
-    Description: Enter the Kinesis Stream name where the Producer Application events
-      is to be published.
+    Description: Enter the Kinesis Stream name where the events should be published.
   ShardCount:
     Type: String
     Default: '2'
@@ -484,6 +483,13 @@ Resources:
       ServiceToken: !GetAtt 'SparkDemoAppLambdaFunction.Arn'
   SparkDemoAppLambdaFunction:
     Type: AWS::Lambda::Function
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This function does not need to be deployed in a VPC
+          - id: W92
+            reason: This function does not require reserved concurrency
     Properties:
       Description: This Lambda function executes only once to download sample demo
         app into Application S3 bucket
@@ -1231,6 +1237,13 @@ Resources:
   SolutionHelper:
     Type: AWS::Lambda::Function
     Condition: AnonymousDatatoAWS
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W89
+            reason: This function does not need to be deployed in a VPC
+          - id: W92
+            reason: This function does not require reserved concurrency
     Properties:
       Handler: solution_helper.lambda_handler
       Role: !GetAtt 'SolutionHelperRole.Arn'
