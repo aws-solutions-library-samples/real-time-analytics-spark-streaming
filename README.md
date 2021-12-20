@@ -24,7 +24,7 @@ All the components of EMR are deployed into the VPC and within a private subnet.
 
 ## Collection of operational metrics
 This solution collects anonymous operational metrics to help AWS improve the quality of features of the solution.
-For more information, including how to disable this capability, please see the [implementation guide](https://docs.aws.amazon.com/solutions/latest/real-time-analytics-spark-streaming/appendix-c.html).
+For more information, including how to disable this capability, please see the [implementation guide](https://docs.aws.amazon.com/solutions/latest/real-time-analytics-spark-streaming/appendix-b.html).
 
 # Known issues
 
