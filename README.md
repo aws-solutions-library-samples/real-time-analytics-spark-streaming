@@ -89,6 +89,8 @@ In Apache Spark, security is OFF by default (for more details, check this [GitHu
         Ec2SubnetId: !GetAtt 'VPCStackQ.Outputs.PrivateSubnet1AID'
 ```
 
+Version 2
+
 ***
 
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.

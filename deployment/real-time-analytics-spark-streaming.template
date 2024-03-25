@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+ AWSTemplateFormatVersion: '2010-09-09'
 Description: "(SO0016) - RealTime-Analytics with Spark Streaming. Version %%VERSION%%"
 Mappings:
   SourceCode:
